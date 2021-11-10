@@ -7,9 +7,11 @@ import clang.cindex as cidx
 
 class CHeaderParser(object):
     """
-    Class that will parse the C API headers and create a JSON file for generating other language bindings
+    Class that will parse the C API headers and create a JSON file for generating other
+    language bindings
 
-    @ivar parsedInfo: a dictionary containing all the parsed cursors found in the C API headers
+    @ivar parsedInfo: a dictionary containing all the parsed cursors found in the C API
+    headers
 
     """
 
