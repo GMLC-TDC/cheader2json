@@ -24,7 +24,7 @@ repos:
     - --line-length=88
 
 - repo: https://github.com/asottile/setup-cfg-fmt
-  rev: v2.0.0
+  rev: v2.1.0
   hooks:
   - id: setup-cfg-fmt
 
@@ -59,6 +59,6 @@ repos:
     types: [shell]
 
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.2.1
+  rev: v2.2.2
   hooks:
   - id: codespell
