@@ -1,7 +1,7 @@
 '''
 Copyright (c) 2017-2022,
-Battelle Memorial Institute; Lawrence Livermore National Security, LLC; Alliance for Sustainable Energy, LLC.  See
-the top-level NOTICE for additional details. All rights reserved.
+Battelle Memorial Institute; Lawrence Livermore National Security, LLC; Alliance for
+Sustainable Energy, LLC.  See the top-level NOTICE for additional details. All rights reserved.
 SPDX-License-Identifier: BSD-3-Clause
 '''
 import json
@@ -48,7 +48,7 @@ class CHeaderParser (object):
             Updates the types to function map
         """
         if dataType and dataType != "":
-            if spelling == None:
+            if spelling is None:
                 spelling = ""
             if dataType not in CHeaderParser._types.keys():
                 CHeaderParser._types[dataType] = [spelling]
@@ -179,7 +179,7 @@ class CHeaderParser (object):
             tu = idx.parse(headerFile, options=cidx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
             for c in tu.cursor.get_children():
                 location_file = c.location.file
-                if c.location.file != None:
+                if c.location.file is not None:
                     if c.location.file.name == headerFile and c.displayname not in ignoredMacros:
                         self.parsedInfo[cursorNum] = self._cursorInfo(c)
                         cursorNum += 1
