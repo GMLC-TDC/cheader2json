@@ -1,7 +1,8 @@
 '''
 Copyright (c) 2017-2022,
 Battelle Memorial Institute; Lawrence Livermore National Security, LLC; Alliance for
-Sustainable Energy, LLC.  See the top-level NOTICE for additional details. All rights reserved.
+Sustainable Energy, LLC.  See the top-level NOTICE for additional details.
+All rights reserved.
 SPDX-License-Identifier: BSD-3-Clause
 '''
 import json
@@ -30,7 +31,7 @@ class CHeaderParser (object):
     """
         Class that will parse C API headers and create other language bindings
 
-        @ivar parsedInfo: a dictionary containing all the parsed cursors found in the C API headers
+        @ivar parsedInfo: a dictionary with all the parsed cursors in the C API headers
 
     """
     _types = {}
@@ -193,7 +194,11 @@ class CHeaderParser (object):
             for key in deletekeys:
                 del self.parsedInfo[key]
         clangLogger.info("Clang successfully parsed the C header files!")
-        clangLogger.debug(f"The clang parser result:\n{json.dumps(self.parsedInfo, indent=4, sort_keys=True)}\n{json.dumps(CHeaderParser._types, indent=4, sort_keys=True)}")
+        clangLogger.debug(
+            f"The clang parser result:\n"
+            f"{json.dumps(self.parsedInfo, indent=4, sort_keys=True)}\n"
+            f"{json.dumps(CHeaderParser._types, indent=4, sort_keys=True)}"
+        )
 
 if len(sys.argv) < 2:
     print("At least one header file must be provided as an input argument.")
