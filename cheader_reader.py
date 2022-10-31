@@ -34,7 +34,7 @@ class CHeaderParser (object):
 
     """
     _types = {}
-    def __init__(self, headers: List[str], ignoredMacros: List[str] = []):
+    def __init__(self, headers: List[str], ignoredMacros: List[str]):
         """
             Constructor
         """
