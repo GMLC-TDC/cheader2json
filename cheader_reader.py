@@ -178,7 +178,6 @@ class CHeaderParser (object):
         for headerFile in headers:
             tu = idx.parse(headerFile, options=cidx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
             for c in tu.cursor.get_children():
-                location_file = c.location.file
                 if c.location.file is not None:
                     if c.location.file.name == headerFile and c.displayname not in ignoredMacros:
                         self.parsedInfo[cursorNum] = self._cursorInfo(c)
