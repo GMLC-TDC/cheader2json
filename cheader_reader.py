@@ -1,10 +1,10 @@
-'''
+"""
 Copyright (c) 2017-2022,
 Battelle Memorial Institute; Lawrence Livermore National Security, LLC; Alliance for
 Sustainable Energy, LLC.  See the top-level NOTICE for additional details.
 All rights reserved.
 SPDX-License-Identifier: BSD-3-Clause
-'''
+"""
 import json
 import logging
 import os
@@ -13,11 +13,12 @@ from typing import List
 
 import clang.cindex as cidx
 
-
 clangLogger = logging.getLogger(__name__)
 clangLogger.setLevel(logging.DEBUG)
-logFormatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-clangLogFileHandler = logging.FileHandler('clangParserLog.log',mode='w',encoding='utf-8')
+logFormatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+clangLogFileHandler = logging.FileHandler(
+    "clangParserLog.log", mode="w", encoding="utf-8"
+)
 clangLogStreamHandler = logging.StreamHandler()
 clangLogFileHandler.setLevel(logging.DEBUG)
 clangLogFileHandler.setFormatter(logFormatter)
@@ -27,17 +28,19 @@ clangLogger.addHandler(clangLogFileHandler)
 clangLogger.addHandler(clangLogStreamHandler)
 
 
-class CHeaderParser (object):
+class CHeaderParser(object):
     """
-        Class that will parse C API headers and create other language bindings
+    Class that will parse C API headers and create other language bindings
 
-        @ivar parsedInfo: a dictionary with all the parsed cursors in the C API headers
+    @ivar parsedInfo: a dictionary with all the parsed cursors in the C API headers
 
     """
+
     _types = {}
+
     def __init__(self, headers: List[str], ignoredMacros: List[str]):
         """
-            Constructor
+        Constructor
         """
         CHeaderParser._types["functions"] = {}
         self.parsedInfo = {}
@@ -46,7 +49,7 @@ class CHeaderParser (object):
 
     def _updateTypeFunctionMap(self, dataType: str, spelling: str):
         """
-            Updates the types to function map
+        Updates the types to function map
         """
         if dataType and dataType != "":
             if spelling is None:
@@ -54,11 +57,11 @@ class CHeaderParser (object):
             if dataType not in CHeaderParser._types.keys():
                 CHeaderParser._types[dataType] = [spelling]
             else:
-                CHeaderParser._types.get(dataType,[]).append(spelling)
+                CHeaderParser._types.get(dataType, []).append(spelling)
 
     def _addFunctionTypeInfo(self, node: cidx.Cursor, cursorInfoDict: dict):
         """
-            Adds type information related to function arguments and return types
+        Adds type information related to function arguments and return types
         """
         typeKey = ""
         typePointee = None
@@ -84,13 +87,20 @@ class CHeaderParser (object):
             else:
                 cursorInfoDict["pointer_type"] = typeName + suffix
 
-        self._updateTypeFunctionMap(cursorInfoDict.get(typeKey,""), cursorInfoDict.get("spelling",""))
-        self._updateTypeFunctionMap(cursorInfoDict.get("pointer_type",""), cursorInfoDict.get("spelling",""))
-        self._updateTypeFunctionMap(cursorInfoDict.get("double_pointer_type",""), cursorInfoDict.get("spelling",""))
+        self._updateTypeFunctionMap(
+            cursorInfoDict.get(typeKey, ""), cursorInfoDict.get("spelling", "")
+        )
+        self._updateTypeFunctionMap(
+            cursorInfoDict.get("pointer_type", ""), cursorInfoDict.get("spelling", "")
+        )
+        self._updateTypeFunctionMap(
+            cursorInfoDict.get("double_pointer_type", ""),
+            cursorInfoDict.get("spelling", ""),
+        )
 
     def _getPointerAndTypeInfo(self, typePointee: cidx.Type):
         """
-            Gets type name and pointer related information for the given type
+        Gets type name and pointer related information for the given type
         """
         depth = 0
         suffix = "_"
@@ -98,19 +108,25 @@ class CHeaderParser (object):
             depth += 1
             suffix += "*"
             typePointee = typePointee.get_pointee()
-        return depth, suffix, typePointee.get_typedef_name() if typePointee.kind == cidx.TypeKind.TYPEDEF else typePointee.kind.spelling
+        return (
+            depth,
+            suffix,
+            typePointee.get_typedef_name()
+            if typePointee.kind == cidx.TypeKind.TYPEDEF
+            else typePointee.kind.spelling,
+        )
 
     def _cursorInfo(self, node: cidx.Cursor) -> dict():
         """
-            Helper function for parseCHeaderFiles()
+        Helper function for parseCHeaderFiles()
         """
         cursorInfoDict = {
-             "kind" : node.kind.name,
-             "spelling" : node.spelling,
-             "location" : node.location.file.name,
-             "type" : node.type.kind.spelling,
-             "result_type" : node.result_type.kind.spelling,
-             "brief_comment" : node.brief_comment,
+            "kind": node.kind.name,
+            "spelling": node.spelling,
+            "location": node.location.file.name,
+            "type": node.type.kind.spelling,
+            "result_type": node.result_type.kind.spelling,
+            "brief_comment": node.brief_comment,
         }
         cursor_range = node.extent
         cursorInfoDict["start_line"] = cursor_range.start.line
@@ -124,10 +140,15 @@ class CHeaderParser (object):
                 cursorInfoDict["arguments"][argNum] = self._cursorInfo(arg)
                 argNum += 1
             cursorInfoDict["argument_count"] = argNum
-            CHeaderParser._types["functions"][cursorInfoDict.get("spelling","")] = cursorInfoDict["arguments"]
+            CHeaderParser._types["functions"][
+                cursorInfoDict.get("spelling", "")
+            ] = cursorInfoDict["arguments"]
         if node.kind == cidx.CursorKind.PARM_DECL:
             self._addFunctionTypeInfo(node, cursorInfoDict)
-        if node.kind == cidx.CursorKind.TYPEDEF_DECL or node.type.kind == cidx.TypeKind.TYPEDEF:
+        if (
+            node.kind == cidx.CursorKind.TYPEDEF_DECL
+            or node.type.kind == cidx.TypeKind.TYPEDEF
+        ):
             cursorInfoDict["type"] = node.underlying_typedef_type.spelling
             if cursorInfoDict["type"] == "":
                 cursorInfoDict["type"] = node.type.get_typedef_name()
@@ -143,10 +164,10 @@ class CHeaderParser (object):
             tokens = []
             for t in node.get_tokens():
                 tokens.append(t.spelling)
-            if tokens[len(tokens)-2] == "-":
-                value = tokens[len(tokens)-2]+tokens[len(tokens)-1]
+            if tokens[len(tokens) - 2] == "-":
+                value = tokens[len(tokens) - 2] + tokens[len(tokens) - 1]
             else:
-                value = tokens[len(tokens)-1]
+                value = tokens[len(tokens) - 1]
             try:
                 cursorInfoDict["value"] = json.loads(value)
             except json.decoder.JSONDecodeError:
@@ -158,7 +179,7 @@ class CHeaderParser (object):
                 cursorInfoDict["members"][memberNum] = self._cursorInfo(i)
                 memberNum += 1
         if node.kind == cidx.CursorKind.MACRO_DEFINITION:
-            value = ''
+            value = ""
             for t in node.get_tokens():
                 value = t.spelling
             try:
@@ -167,20 +188,25 @@ class CHeaderParser (object):
                 cursorInfoDict["value"] = value
         return cursorInfoDict
 
-
     def parseCHeaderFiles(self, headers: List[str], ignoredMacros: List[str]) -> None:
         """
-            Function that parses the C header files
-            @param headers: A list of the C header files to parse
-            @param ignoredMacros: A list of macros to ignore
+        Function that parses the C header files
+        @param headers: A list of the C header files to parse
+        @param ignoredMacros: A list of macros to ignore
         """
         idx = cidx.Index.create()
         cursorNum = 0
         for headerFile in headers:
-            tu = idx.parse(headerFile, options=cidx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
+            tu = idx.parse(
+                headerFile,
+                options=cidx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD,
+            )
             for c in tu.cursor.get_children():
                 if c.location.file is not None:
-                    if c.location.file.name == headerFile and c.displayname not in ignoredMacros:
+                    if (
+                        c.location.file.name == headerFile
+                        and c.displayname not in ignoredMacros
+                    ):
                         self.parsedInfo[cursorNum] = self._cursorInfo(c)
                         cursorNum += 1
             deletekeys = []
@@ -188,8 +214,15 @@ class CHeaderParser (object):
                 if self.parsedInfo[key]["spelling"] == "":
                     for i in self.parsedInfo.keys():
                         if i != key:
-                            if self.parsedInfo[key]["start_line"] == self.parsedInfo[i]["start_line"] and self.parsedInfo[key]["end_line"] == self.parsedInfo[i]["end_line"]:
-                                self.parsedInfo[key]["spelling"] = self.parsedInfo[i]["spelling"]
+                            if (
+                                self.parsedInfo[key]["start_line"]
+                                == self.parsedInfo[i]["start_line"]
+                                and self.parsedInfo[key]["end_line"]
+                                == self.parsedInfo[i]["end_line"]
+                            ):
+                                self.parsedInfo[key]["spelling"] = self.parsedInfo[i][
+                                    "spelling"
+                                ]
                                 deletekeys.append(i)
             for key in deletekeys:
                 del self.parsedInfo[key]
@@ -199,6 +232,7 @@ class CHeaderParser (object):
             f"{json.dumps(self.parsedInfo, indent=4, sort_keys=True)}\n"
             f"{json.dumps(CHeaderParser._types, indent=4, sort_keys=True)}"
         )
+
 
 if len(sys.argv) < 2:
     print("At least one header file must be provided as an input argument.")
