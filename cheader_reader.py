@@ -148,7 +148,7 @@ class CHeaderParser (object):
                 value = tokens[len(tokens)-1]
             try:
                 cursorInfoDict["value"] = json.loads(value)
-            except:
+            except json.decoder.JSONDecodeError:
                 cursorInfoDict["value"] = value
         if node.kind == cidx.CursorKind.STRUCT_DECL:
             cursorInfoDict["members"] = {}
@@ -162,7 +162,7 @@ class CHeaderParser (object):
                 value = t.spelling
             try:
                 cursorInfoDict["value"] = json.loads(value)
-            except:
+            except json.decoder.JSONDecodeError:
                 cursorInfoDict["value"] = value
         return cursorInfoDict
 
