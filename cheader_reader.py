@@ -5,6 +5,7 @@ Sustainable Energy, LLC.  See the top-level NOTICE for additional details.
 All rights reserved.
 SPDX-License-Identifier: BSD-3-Clause
 """
+
 import json
 import logging
 import os
@@ -111,9 +112,11 @@ class CHeaderParser(object):
         return (
             depth,
             suffix,
-            typePointee.get_typedef_name()
-            if typePointee.kind == cidx.TypeKind.TYPEDEF
-            else typePointee.kind.spelling,
+            (
+                typePointee.get_typedef_name()
+                if typePointee.kind == cidx.TypeKind.TYPEDEF
+                else typePointee.kind.spelling
+            ),
         )
 
     def _cursorInfo(self, node: cidx.Cursor) -> dict():
@@ -140,9 +143,9 @@ class CHeaderParser(object):
                 cursorInfoDict["arguments"][argNum] = self._cursorInfo(arg)
                 argNum += 1
             cursorInfoDict["argument_count"] = argNum
-            CHeaderParser._types["functions"][
-                cursorInfoDict.get("spelling", "")
-            ] = cursorInfoDict["arguments"]
+            CHeaderParser._types["functions"][cursorInfoDict.get("spelling", "")] = (
+                cursorInfoDict["arguments"]
+            )
         if node.kind == cidx.CursorKind.PARM_DECL:
             self._addFunctionTypeInfo(node, cursorInfoDict)
         if (
