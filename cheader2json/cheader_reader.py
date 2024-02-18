@@ -14,20 +14,6 @@ from typing import List
 
 import clang.cindex as cidx
 
-clangLogger = logging.getLogger(__name__)
-clangLogger.setLevel(logging.DEBUG)
-logFormatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-clangLogFileHandler = logging.FileHandler(
-    "clangParserLog.log", mode="w", encoding="utf-8"
-)
-clangLogStreamHandler = logging.StreamHandler()
-clangLogFileHandler.setLevel(logging.DEBUG)
-clangLogFileHandler.setFormatter(logFormatter)
-clangLogStreamHandler.setLevel(logging.INFO)
-clangLogStreamHandler.setFormatter(logFormatter)
-clangLogger.addHandler(clangLogFileHandler)
-clangLogger.addHandler(clangLogStreamHandler)
-
 
 class CHeaderParser(object):
     """
@@ -39,6 +25,21 @@ class CHeaderParser(object):
 
     _types = {}
 
+    def _configureLogger(self, logfilename="clangParserLog.log"):
+        self.clangLogger = logging.getLogger(__name__)
+        self.clangLogger.setLevel(logging.DEBUG)
+        logFormatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        clangLogFileHandler = logging.FileHandler(
+            logfilename, mode="w", encoding="utf-8"
+        )
+        clangLogStreamHandler = logging.StreamHandler()
+        clangLogFileHandler.setLevel(logging.DEBUG)
+        clangLogFileHandler.setFormatter(logFormatter)
+        clangLogStreamHandler.setLevel(logging.INFO)
+        clangLogStreamHandler.setFormatter(logFormatter)
+        self.clangLogger.addHandler(clangLogFileHandler)
+        self.clangLogger.addHandler(clangLogStreamHandler)
+
     def __init__(self, headers: List[str], ignoredMacros: List[str]):
         """
         Constructor
@@ -46,6 +47,7 @@ class CHeaderParser(object):
         CHeaderParser._types["functions"] = {}
         self.parsedInfo = {}
         self.headerFiles = headers
+        self._configureLogger()
         self.parseCHeaderFiles(headers, ignoredMacros)
 
     def _updateTypeFunctionMap(self, dataType: str, spelling: str):
@@ -109,6 +111,8 @@ class CHeaderParser(object):
             depth += 1
             suffix += "*"
             typePointee = typePointee.get_pointee()
+        if typePointee.kind == cidx.TypeKind.ELABORATED:
+            typePointee = typePointee.get_named_type()
         return (
             depth,
             suffix,
@@ -119,7 +123,7 @@ class CHeaderParser(object):
             ),
         )
 
-    def _cursorInfo(self, node: cidx.Cursor) -> dict():
+    def _cursorInfo(self, node: cidx.Cursor) -> dict:
         """
         Helper function for parseCHeaderFiles()
         """
@@ -127,10 +131,11 @@ class CHeaderParser(object):
             "kind": node.kind.name,
             "spelling": node.spelling,
             "location": node.location.file.name,
-            "type": node.type.kind.spelling,
-            "result_type": node.result_type.kind.spelling,
+            "type": node.type.kind.spelling if node.type.kind != cidx.TypeKind.ELABORATED else node.type.get_named_type().spelling,
+            "result_type": node.result_type.kind.spelling if node.result_type.kind != cidx.TypeKind.ELABORATED else node.result_type.get_named_type().spelling,
             "brief_comment": node.brief_comment,
         }
+
         cursor_range = node.extent
         cursorInfoDict["start_line"] = cursor_range.start.line
         cursorInfoDict["end_line"] = cursor_range.end.line
@@ -229,21 +234,9 @@ class CHeaderParser(object):
                                 deletekeys.append(i)
             for key in deletekeys:
                 del self.parsedInfo[key]
-        clangLogger.info("Clang successfully parsed the C header files!")
-        clangLogger.debug(
+        self.clangLogger.info("Clang successfully parsed the C header files!")
+        self.clangLogger.debug(
             f"The clang parser result:\n"
             f"{json.dumps(self.parsedInfo, indent=4, sort_keys=True)}\n"
             f"{json.dumps(CHeaderParser._types, indent=4, sort_keys=True)}"
         )
-
-
-if len(sys.argv) < 2:
-    print("At least one header file must be provided as an input argument.")
-    exit(1)
-
-parser = CHeaderParser(sys.argv[1:])
-with open("helics.ast.json", "w+") as f:
-    json.dump(parser.parsedInfo, f, indent=4, sort_keys=False)
-
-with open("helics.types.json", "w+") as f:
-    json.dump(parser._types, f, indent=4, sort_keys=False)

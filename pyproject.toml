@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cheader2json"
+authors = [
+    {name = "Ryan Mast", email = "mast9@llnl.gov"},
+    {name = "Andy Fisher", email = "andrew.fisher@pnnl.gov"},
+]
+maintainers = [
+    {name = "Ryan Mast", email = "mast9@llnl.gov"},
+]
+description = "Parse C header file and output JSON ast + types"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["libclang", "clang", "c", "header", "parser", "json", "conversion"]
+license = {text = "BSD License"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: Software Development",
+    "Topic :: System",
+    "Topic :: Utilities",
+    "License :: OSI Approved :: BSD License",
+]
+dependencies = [
+    "libclang==16.0.6",
+    "click"
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+dev = ["build", "pre-commit"]
+docs = ["sphinx", "myst-parser"]
+
+[project.scripts]
+cheader2json = "cheader2json.__main__:cli"
+
+[project.urls]
+Homepage = "https://github.com/GMLC-TDC/cheader2json"
+"Issue Tracker" = "https://github.com/GMLC-TDC/cheader2json/issues"
+"Source Code" = "https://github.com/GMLC-TDC/cheader2json"
+
+[tool.setuptools.packages.find]
+include = ["cheader2json", "cheader2json.*"]
+
+[tool.setuptools_scm]
+version_file = "cheader2json/_version.py"
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib"]
+pythonpath = "."
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+# ruff defaults: E4, E7, E9, F
+select = ["E", "F", "B", "W", "I"]
+ignore = ["E501", "F401", "W503"]
+# don't fix flake8-bugbear (`B`) violations
+unfixable = ["B"]
