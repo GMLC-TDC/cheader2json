@@ -2,7 +2,7 @@
 
 Take one or more c header files as input, and do a JSON dump of a portion of the libclang AST for easier processing by other
 tools. This code was originally from the libclang based Python/Matlab binding generator for HELICS, but has been split out
-to make it more reuseable. Functionality is also provided to do a diff of two JSON files, that can be used to get a quick
+to make it more reusable. Functionality is also provided to do a diff of two JSON files, that can be used to get a quick
 overview of what has changed between releases.
 
 ## Installation

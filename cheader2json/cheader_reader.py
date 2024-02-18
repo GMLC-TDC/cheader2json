@@ -28,7 +28,9 @@ class CHeaderParser(object):
     def _configureLogger(self, logfilename="clangParserLog.log"):
         self.clangLogger = logging.getLogger(__name__)
         self.clangLogger.setLevel(logging.DEBUG)
-        logFormatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        logFormatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
         clangLogFileHandler = logging.FileHandler(
             logfilename, mode="w", encoding="utf-8"
         )
@@ -131,8 +133,12 @@ class CHeaderParser(object):
             "kind": node.kind.name,
             "spelling": node.spelling,
             "location": node.location.file.name,
-            "type": node.type.kind.spelling if node.type.kind != cidx.TypeKind.ELABORATED else node.type.get_named_type().spelling,
-            "result_type": node.result_type.kind.spelling if node.result_type.kind != cidx.TypeKind.ELABORATED else node.result_type.get_named_type().spelling,
+            "type": node.type.kind.spelling
+            if node.type.kind != cidx.TypeKind.ELABORATED
+            else node.type.get_named_type().spelling,
+            "result_type": node.result_type.kind.spelling
+            if node.result_type.kind != cidx.TypeKind.ELABORATED
+            else node.result_type.get_named_type().spelling,
             "brief_comment": node.brief_comment,
         }
 
@@ -148,9 +154,9 @@ class CHeaderParser(object):
                 cursorInfoDict["arguments"][argNum] = self._cursorInfo(arg)
                 argNum += 1
             cursorInfoDict["argument_count"] = argNum
-            CHeaderParser._types["functions"][cursorInfoDict.get("spelling", "")] = (
-                cursorInfoDict["arguments"]
-            )
+            CHeaderParser._types["functions"][
+                cursorInfoDict.get("spelling", "")
+            ] = cursorInfoDict["arguments"]
         if node.kind == cidx.CursorKind.PARM_DECL:
             self._addFunctionTypeInfo(node, cursorInfoDict)
         if (
