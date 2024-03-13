@@ -154,9 +154,9 @@ class CHeaderParser(object):
                 cursorInfoDict["arguments"][argNum] = self._cursorInfo(arg)
                 argNum += 1
             cursorInfoDict["argument_count"] = argNum
-            CHeaderParser._types["functions"][
-                cursorInfoDict.get("spelling", "")
-            ] = cursorInfoDict["arguments"]
+            CHeaderParser._types["functions"][cursorInfoDict.get("spelling", "")] = (
+                cursorInfoDict["arguments"]
+            )
         if node.kind == cidx.CursorKind.PARM_DECL:
             self._addFunctionTypeInfo(node, cursorInfoDict)
         if (
