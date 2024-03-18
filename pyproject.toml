@@ -35,7 +35,7 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
 ]
 dependencies = [
-    "libclang==16.0.6",
+    "libclang==18.1.1",
     "click"
 ]
 dynamic = ["version"]
