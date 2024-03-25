@@ -22,9 +22,9 @@ jobs:
         pip install .
     - name: Test on a header file
       run: |
-        wget https://github.com/GMLC-TDC/HELICS/releases/download/v3.5.0/Helics-shared-3.5.0-Linux-x86_64.tar.gz
-        tar xvf Helics-shared-3.5.0-Linux-x86_64.tar.gz
-        cheader2json convert Helics-3.5.0-Linux-x86_64/include/helics/helics.h
+        wget https://github.com/GMLC-TDC/HELICS/releases/download/v3.5.1/Helics-shared-3.5.1-Linux-x86_64.tar.gz
+        tar xvf Helics-shared-3.5.1-Linux-x86_64.tar.gz
+        cheader2json convert Helics-3.5.1-Linux-x86_64/include/helics/helics.h
     - uses: actions/upload-artifact@v4
       with:
         path: "*.json"
