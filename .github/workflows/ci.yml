@@ -20,11 +20,22 @@ jobs:
     - name: Install cheader2json
       run: |
         pip install .
+    - id: gh-cli-auth
+      shell: bash
+      run: echo "${{github.token}}" | gh auth login --with-token
+    # Test against newest HELICS release
+    - id: newest-version
+      shell: bash
+      run: |
+        # list most recent 100 releases, ignore "Pre-release" lines, then get the most recent tag that matches
+        NEWEST_VERSION_MATCH=$(gh release list --repo GMLC-TDC/HELICS --limit 100 | grep -v "Pre-release" | cut -f3 | head -n1)
+        echo "version=$(echo $NEWEST_VERSION_MATCH)" >> $GITHUB_OUTPUT
     - name: Test on a header file
       run: |
-        wget https://github.com/GMLC-TDC/HELICS/releases/download/v3.5.1/Helics-shared-3.5.1-Linux-x86_64.tar.gz
-        tar xvf Helics-shared-3.5.1-Linux-x86_64.tar.gz
-        cheader2json convert Helics-3.5.1-Linux-x86_64/include/helics/helics.h
+        HELICS_VERSION="${{steps.newest-version.outputs.version}}"
+        wget https://github.com/GMLC-TDC/HELICS/releases/download/${HELICS_VERSION}/Helics-shared-${HELICS_VERSION:1}-Linux-x86_64.tar.gz
+        tar xvf Helics-shared-${HELICS_VERSION:1}-Linux-x86_64.tar.gz
+        cheader2json convert Helics-${HELICS_VERSION:1}-Linux-x86_64/include/helics/helics.h
     - uses: actions/upload-artifact@v4
       with:
         path: "*.json"
