@@ -125,6 +125,41 @@ class CHeaderParser(object):
             ),
         )
 
+    def _isTypeFunctionPointer(self, node: cidx.Cursor) -> bool:
+        if (
+            node.kind == cidx.CursorKind.TYPEDEF_DECL
+            or node.type.kind == cidx.TypeKind.TYPEDEF
+        ):
+            if node.underlying_typedef_type.kind == cidx.TypeKind.POINTER:
+                type_pointee = node.underlying_typedef_type.get_pointee()
+                if type_pointee.kind == cidx.TypeKind.FUNCTIONPROTO:
+                    return True
+        elif node.type.kind == cidx.TypeKind.POINTER:
+            type_pointee = node.type.get_pointee()
+            if type_pointee.kind == cidx.TypeKind.FUNCTIONPROTO:
+                return True
+        return False
+
+    def _getFunctionPointerArguments(self, node: cidx.Cursor) -> list:
+        # Returns a list of objects with info on function pointer arguments
+        function_pointer_arguments = []
+        for arg in node.get_children():
+            arg_info = {
+                "name": arg.spelling,
+                "type": arg.type.spelling
+                if arg.kind != cidx.TypeKind.ELABORATED
+                else arg.get_named_type().spelling,
+            }
+            if self._isTypeFunctionPointer(arg):
+                arg_info["function_pointer_arguments"] = (
+                    self._getFunctionPointerArguments(arg)
+                )
+                arg_info["function_pointer_result_type"] = (
+                    arg.type.get_pointee().get_result().spelling
+                )
+            function_pointer_arguments.append(arg_info)
+        return function_pointer_arguments
+
     def _cursorInfo(self, node: cidx.Cursor) -> dict:
         """
         Helper function for parseCHeaderFiles()
@@ -166,6 +201,13 @@ class CHeaderParser(object):
             cursorInfoDict["type"] = node.underlying_typedef_type.spelling
             if cursorInfoDict["type"] == "":
                 cursorInfoDict["type"] = node.type.get_typedef_name()
+            if self._isTypeFunctionPointer(node):
+                cursorInfoDict["function_pointer_arguments"] = (
+                    self._getFunctionPointerArguments(node)
+                )
+                cursorInfoDict["function_pointer_result_type"] = (
+                    node.underlying_typedef_type.get_pointee().get_result().spelling
+                )
         if node.kind == cidx.CursorKind.ENUM_DECL:
             cursorInfoDict["enumerations"] = {}
             enumNum = 0
