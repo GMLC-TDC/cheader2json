@@ -60,7 +60,7 @@ jobs:
       uses: ./.github/actions/generate-diff
       with:
         pypi-version: 'latest'
-        repository-url: 'https://github.com/GMLC-TDC/HELICS.git'
+        repository: 'GMLC-TDC/HELICS'
         old-version: ${{ github.event.inputs.old-version || '' }}
         new-version: ${{ github.event.inputs.new-version || '' }}
         version-constraint: ${{ github.event.inputs.version-constraint || '^v3.*' }}

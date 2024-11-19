@@ -6,8 +6,8 @@ inputs:
     description: 'The published PyPI version number to use. If not provided, the latest published version will be used. If set to a commit hash or a string such as `main`, the corresponding branch of the cheader2json repository will be used.'
     required: false
     default: 'latest'
-  repository-url:
-    description: 'The URL of the Git repository to generate the diff for.'
+  repository:
+    description: 'The Git repository to generate the diff for. Format: {owner}/{repo}.'
     required: true
   old-version:
     description: 'The specific old version number to generate the diff for.'
@@ -32,7 +32,7 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        repository: ${{ inputs.repository-url }}
+        repository: ${{ inputs.repository }}
         ref: ${{ inputs.pypi-version }}
 
     - name: Set up Python

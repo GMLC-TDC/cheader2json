@@ -42,7 +42,7 @@ A GitHub composite action is available to generate diffs between header files us
 ### Inputs
 
 - `pypi-version` (optional): The published PyPI version number to use. If not provided, the latest published version will be used. If set to a commit hash or a string such as `main`, the corresponding branch of the cheader2json repository will be used.
-- `repository-url` (required): The URL of the Git repository to generate the diff for.
+- `repository` (required): The URL of the Git repository to generate the diff for.
 - `old-version` (optional): The specific old version number to generate the diff for.
 - `new-version` (optional): The specific new version number to generate the diff for.
 - `version-constraint` (optional): A custom version constraint pattern using regular expressions.
@@ -59,7 +59,7 @@ A GitHub composite action is available to generate diffs between header files us
   uses: GMLC-TDC/cheader2json/.github/actions/generate-diff
   with:
     pypi-version: 'latest'
-    repository-url: 'https://github.com/GMLC-TDC/HELICS.git'
+    repository: 'GMLC-TDC/HELICS'
     old-version: 'v3.0.0'
     new-version: 'v3.1.0'
     version-constraint: '^v3.*'
