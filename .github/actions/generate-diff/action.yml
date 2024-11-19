@@ -41,6 +41,7 @@ runs:
         python-version: '3.10'
 
     - name: Install cheader2json
+      shell: bash
       run: |
         if [ "${{ inputs.pypi-version }}" == "latest" ]; then
           pip install cheader2json
@@ -49,11 +50,13 @@ runs:
         fi
 
     - name: Fetch tags
+      shell: bash
       run: |
         git fetch --tags
 
     - name: Determine versions
       id: determine-versions
+      shell: bash
       run: |
         if [ -z "${{ inputs.old-version }}" ] || [ -z "${{ inputs.new-version }}" ]; then
           tags=$(git tag -l --sort=-v:refname)
@@ -78,22 +81,27 @@ runs:
         echo "new_version=$new_version" >> $GITHUB_ENV
 
     - name: Checkout old version
+      shell: bash
       run: |
         git checkout ${{ env.old_version }}
 
     - name: Convert old version headers to JSON
+      shell: bash
       run: |
         cheader2json convert ${{ inputs.header-paths }} --prefix=${{ env.old_version }}
 
     - name: Checkout new version
+      shell: bash
       run: |
         git checkout ${{ env.new_version }}
 
     - name: Convert new version headers to JSON
+      shell: bash
       run: |
         cheader2json convert ${{ inputs.header-paths }} --prefix=${{ env.new_version }}
 
     - name: Generate diff
+      shell: bash
       run: |
         cheader2json diff ${{ env.old_version }}.ast.json ${{ env.new_version }}.ast.json > diff-output.txt
 
@@ -115,4 +123,5 @@ runs:
 
     - name: Set diff output
       id: set-diff-output
+      shell: bash
       run: echo "diff-output=$(cat diff-output.txt)" >> $GITHUB_OUTPUT
