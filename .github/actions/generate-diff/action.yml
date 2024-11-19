@@ -38,12 +38,15 @@ runs:
       run: |
         mkdir -p ${{ inputs.working-directory }}
 
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        repository: ${{ inputs.repository }}
-        ref: ${{ inputs.pypi-version }}
-        path: ${{ inputs.working-directory }}
+    - name: Clone repository
+      shell: bash
+      run: |
+        if [[ "${{ inputs.repository }}" =~ ^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$ ]]; then
+          repository_url="https://github.com/${{ inputs.repository }}.git"
+        else
+          repository_url="${{ inputs.repository }}"
+        fi
+        git clone $repository_url ${{ inputs.working-directory }}
 
     - name: Set up Python
       uses: actions/setup-python@v5

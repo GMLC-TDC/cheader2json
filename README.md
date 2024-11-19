@@ -60,7 +60,7 @@ A GitHub composite action is available to generate diffs between header files us
   uses: GMLC-TDC/cheader2json/.github/actions/generate-diff
   with:
     pypi-version: 'latest'
-    repository: 'GMLC-TDC/HELICS'
+    repository: 'https://github.com/GMLC-TDC/HELICS.git'
     old-version: 'v3.0.0'
     new-version: 'v3.1.0'
     version-constraint: '^v3.*'
