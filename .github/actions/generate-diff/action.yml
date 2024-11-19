@@ -24,7 +24,7 @@ inputs:
   working-directory:
     description: 'The working directory for repository clones. If not provided, a default directory outside of the local GitHub Actions repository will be used.'
     required: false
-    default: '/tmp/cheader2json-working-directory'
+    default: '${{ github.workspace }}/cheader2json-working-directory'
 
 outputs:
   diff-output:

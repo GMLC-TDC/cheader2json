@@ -65,5 +65,5 @@ A GitHub composite action is available to generate diffs between header files us
     new-version: 'v3.1.0'
     version-constraint: '^v3.*'
     header-paths: 'include/**/*.h'
-    working-directory: '/path/to/working-directory'
+    working-directory: '${{ github.workspace }}/cheader2json-working-directory'
 ```
