@@ -56,7 +56,7 @@ A GitHub composite action is available to generate diffs between header files us
 
 ```yaml
 - name: Generate Diff
-  uses: ./.github/actions/generate-diff
+  uses: GMLC-TDC/cheader2json/.github/actions/generate-diff
   with:
     pypi-version: 'latest'
     repository-url: 'https://github.com/GMLC-TDC/HELICS.git'
