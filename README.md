@@ -47,6 +47,7 @@ A GitHub composite action is available to generate diffs between header files us
 - `new-version` (optional): The specific new version number to generate the diff for.
 - `version-constraint` (optional): A custom version constraint pattern using regular expressions.
 - `header-paths` (required): A path or regex within the source code checkouts to get the header files that should be converted to JSON.
+- `working-directory` (optional): The working directory for repository clones. If not provided, a default directory outside of the local GitHub Actions repository will be used.
 
 ### Outputs
 
@@ -64,4 +65,5 @@ A GitHub composite action is available to generate diffs between header files us
     new-version: 'v3.1.0'
     version-constraint: '^v3.*'
     header-paths: 'include/**/*.h'
+    working-directory: '/path/to/working-directory'
 ```

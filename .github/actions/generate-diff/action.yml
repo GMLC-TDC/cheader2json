@@ -21,6 +21,10 @@ inputs:
   header-paths:
     description: 'A path or regex within the source code checkouts to get the header files that should be converted to JSON.'
     required: true
+  working-directory:
+    description: 'The working directory for repository clones. If not provided, a default directory outside of the local GitHub Actions repository will be used.'
+    required: false
+    default: '/tmp/cheader2json-working-directory'
 
 outputs:
   diff-output:
@@ -29,11 +33,17 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Create working directory
+      shell: bash
+      run: |
+        mkdir -p ${{ inputs.working-directory }}
+
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.pypi-version }}
+        path: ${{ inputs.working-directory }}
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -52,12 +62,14 @@ runs:
     - name: Fetch tags
       shell: bash
       run: |
+        cd ${{ inputs.working-directory }}
         git fetch --tags
 
     - name: Determine versions
       id: determine-versions
       shell: bash
       run: |
+        cd ${{ inputs.working-directory }}
         if [ -z "${{ inputs.old-version }}" ] || [ -z "${{ inputs.new-version }}" ]; then
           tags=$(git tag -l --sort=-v:refname)
           if [ -n "${{ inputs.version-constraint }}" ]; then
@@ -83,26 +95,31 @@ runs:
     - name: Checkout old version
       shell: bash
       run: |
+        cd ${{ inputs.working-directory }}
         git checkout ${{ env.old_version }}
 
     - name: Convert old version headers to JSON
       shell: bash
       run: |
+        cd ${{ inputs.working-directory }}
         cheader2json convert ${{ inputs.header-paths }} --prefix=${{ env.old_version }}
 
     - name: Checkout new version
       shell: bash
       run: |
+        cd ${{ inputs.working-directory }}
         git checkout ${{ env.new_version }}
 
     - name: Convert new version headers to JSON
       shell: bash
       run: |
+        cd ${{ inputs.working-directory }}
         cheader2json convert ${{ inputs.header-paths }} --prefix=${{ env.new_version }}
 
     - name: Generate diff
       shell: bash
       run: |
+        cd ${{ inputs.working-directory }}
         cheader2json diff ${{ env.old_version }}.ast.json ${{ env.new_version }}.ast.json > diff-output.txt
 
     - name: Upload JSON files
@@ -110,18 +127,18 @@ runs:
       with:
         name: json-files
         path: |
-          ${{ env.old_version }}.ast.json
-          ${{ env.old_version }}.types.json
-          ${{ env.new_version }}.ast.json
-          ${{ env.new_version }}.types.json
+          ${{ inputs.working-directory }}/${{ env.old_version }}.ast.json
+          ${{ inputs.working-directory }}/${{ env.old_version }}.types.json
+          ${{ inputs.working-directory }}/${{ env.new_version }}.ast.json
+          ${{ inputs.working-directory }}/${{ env.new_version }}.types.json
 
     - name: Upload diff results
       uses: actions/upload-artifact@v4
       with:
         name: diff-results
-        path: diff-output.txt
+        path: ${{ inputs.working-directory }}/diff-output.txt
 
     - name: Set diff output
       id: set-diff-output
       shell: bash
-      run: echo "diff-output=$(cat diff-output.txt)" >> $GITHUB_OUTPUT
+      run: echo "diff-output=$(cat ${{ inputs.working-directory }}/diff-output.txt)" >> $GITHUB_OUTPUT
