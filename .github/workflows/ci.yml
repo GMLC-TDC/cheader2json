@@ -55,6 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+    - uses: actions/checkout@v4
     - name: Generate Diff
       uses: ./.github/actions/generate-diff
       with:
