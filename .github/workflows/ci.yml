@@ -57,9 +57,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Generate Diff
-      uses: ./.github/actions/generate-diff
+      uses: ./actions/generate-diff
       with:
-        pypi-version: 'latest'
+        pypi-version: 'main'
         repository: 'GMLC-TDC/HELICS'
         old-version: ${{ github.event.inputs.old-version || '' }}
         new-version: ${{ github.event.inputs.new-version || '' }}

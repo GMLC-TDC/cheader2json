@@ -58,6 +58,8 @@ runs:
       run: |
         if [ "${{ inputs.pypi-version }}" == "latest" ]; then
           pip install cheader2json
+        elif [[ "${{ inputs.pypi-version }}" =~ ^[a-fA-F0-9]{40}$ ]] || [[ "${{ inputs.pypi-version }}" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+          pip install git+https://github.com/GMLC-TDC/cheader2json.git@${{ inputs.pypi-version }}
         else
           pip install cheader2json==${{ inputs.pypi-version }}
         fi
