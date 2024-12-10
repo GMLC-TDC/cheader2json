@@ -146,4 +146,7 @@ runs:
     - name: Set diff output
       id: set-diff-output
       shell: bash
-      run: echo "diff-output=$(cat ${{ inputs.working-directory }}/diff-output.txt)" >> $GITHUB_OUTPUT
+      run: |
+        echo "diff-output<<EOF" >> $GITHUB_OUTPUT
+        echo "diff-output=$(cat ${{ inputs.working-directory }}/diff-output.txt)" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
