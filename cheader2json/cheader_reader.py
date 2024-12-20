@@ -50,6 +50,11 @@ class CHeaderParser(object):
         self.parsedInfo = {}
         self.headerFiles = headers
         self._configureLogger()
+        for header in headers:
+            if not os.path.exists(header):
+                self.clangLogger.error(
+                    f"Invalid header file path: {header}. Please check the file path and ensure the file exists."
+                )
         self.parseCHeaderFiles(headers, ignoredMacros)
 
     def _updateTypeFunctionMap(self, dataType: str, spelling: str):
@@ -253,10 +258,13 @@ class CHeaderParser(object):
         idx = cidx.Index.create()
         cursorNum = 0
         for headerFile in headers:
-            tu = idx.parse(
-                headerFile,
-                options=cidx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD,
-            )
+            try:
+                tu = idx.parse(
+                    headerFile,
+                    options=cidx.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD,
+                )
+            except cidx.TranslationUnitLoadError as e:
+                raise Exception(f"Error parsing {headerFile}") from e
             for c in tu.cursor.get_children():
                 if c.location.file is not None:
                     if (
