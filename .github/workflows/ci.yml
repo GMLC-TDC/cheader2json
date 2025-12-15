@@ -47,7 +47,7 @@ jobs:
         wget https://github.com/GMLC-TDC/HELICS/releases/download/${HELICS_VERSION}/Helics-shared-${HELICS_VERSION:1}-Linux-x86_64.tar.gz
         tar xvf Helics-shared-${HELICS_VERSION:1}-Linux-x86_64.tar.gz
         cheader2json convert Helics-${HELICS_VERSION:1}-Linux-x86_64/include/helics/helics.h
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         path: "*.json"
 
